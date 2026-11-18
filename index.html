@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Planificador semanal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='13' fill='%2347e0a0'/%3E%3Crect x='9' y='12' width='30' height='27' rx='6' fill='%231c2250'/%3E%3Cpath d='M17 30l5 5 9-10' stroke='%2347e0a0' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Figtree:wght@400;500;600&display=swap">
 <style>
 :root{--ink:#1c2250;--panel:#252d63;--panel2:#313a78;--line:#434d90;--text:#eef0ff;--muted:#a9b0dd;--bg:#f2f3fa;--card:#fff;--cardtext:#1c2250;--accent:#47e0a0;--accent-ink:#06382a;--amber:#ffbe3d;--coral:#ff7a8a;--teal:#3cc9d9;
@@ -82,6 +83,17 @@ input,select{font:inherit;padding:10px 12px;border-radius:10px;border:2px solid 
 #toasts{position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 14px}
 .toast{pointer-events:auto;display:flex;align-items:center;gap:10px;max-width:460px;padding:12px 16px;border-radius:12px;font-weight:600;box-shadow:0 10px 28px rgba(10,14,40,.35);background:var(--accent);color:var(--accent-ink)}
 .toast.err{background:var(--coral);color:#3a0b14}.toast.info{background:var(--amber);color:#3a2a00}.toast b{font-size:calc(18px*var(--fs));line-height:1}
+.brand{gap:12px}.bt{display:flex;flex-direction:column;line-height:1.15;text-align:left}.bt b{font-family:Fraunces,Georgia,serif;font-size:calc(24px*var(--fs));letter-spacing:.3px}.bt span{font-size:calc(12px*var(--fs));color:var(--muted);text-transform:capitalize}.logo{flex:none;display:block}
+.side{background-image:radial-gradient(rgba(255,255,255,.07) 1.5px,transparent 1.5px);background-size:22px 22px}
+.main{background-image:radial-gradient(rgba(255,255,255,.04) 1.5px,transparent 1.5px);background-size:26px 26px}
+.mascot{display:flex;align-items:flex-end;gap:12px;margin-top:auto}.mascot svg{flex:none;animation:bob 2.4s ease-in-out infinite}
+.bubble{position:relative;flex:1;background:var(--panel2);color:var(--text);border-radius:14px;padding:9px 12px;font-size:calc(13px*var(--fs));line-height:1.35}
+.bubble::before{content:"";position:absolute;left:-5px;bottom:16px;width:12px;height:12px;background:var(--panel2);transform:rotate(45deg)}
+.xp{background:var(--panel2);border-radius:14px;padding:10px 12px;font-size:calc(13px*var(--fs))}.xp b{color:var(--amber)}
+.xp .bar{height:10px;border-radius:99px;background:var(--ink);margin-top:7px;overflow:hidden}.xp .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--amber));border-radius:99px;transition:width .4s}
+.pop{position:fixed;z-index:200;pointer-events:none;font-size:20px}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.mascot svg{animation:none}.xp .fill{transition:none}}
 [hidden]{display:none!important}
 #toasts{inset:auto 0 calc(18px + env(safe-area-inset-bottom,0px)) 0;margin:0;width:auto;height:auto;border:0;background:none;overflow:visible;color:inherit}
 .avatar{overflow:hidden;background-size:cover;background-position:center}.avatar.has-img{color:transparent}
@@ -100,26 +112,56 @@ dialog.wide{width:min(520px,94vw);max-height:90vh;overflow:auto}
 </head>
 <body>
 <div class="app">
-  <div class="brand" id="mesAnio"></div>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48" width="44" height="44" role="img" aria-label="Logo de Planea">
+      <rect width="48" height="48" rx="13" fill="#47e0a0"/>
+      <rect x="9" y="12" width="30" height="27" rx="6" fill="#1c2250"/>
+      <path d="M9 18a6 6 0 0 1 6-6h18a6 6 0 0 1 6 6v3H9z" fill="#ffbe3d"/>
+      <rect x="16" y="8" width="4" height="9" rx="2" fill="#ffffff"/>
+      <rect x="28" y="8" width="4" height="9" rx="2" fill="#ffffff"/>
+      <path d="M17 30l5 5 9-10" fill="none" stroke="#47e0a0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="bt"><b>Planea</b><span id="mesAnio"></span></div>
+  </div>
   <header class="top"><div class="today" id="hoy"></div><div class="pf"><button class="avatar" id="pfBtn" aria-haspopup="true" aria-expanded="false">Perfil</button><div class="menu" id="pfMenu" hidden><div class="who"><small id="uSmall">Sin sesión iniciada</small><b id="uName">Invitado</b><span class="sm" id="uMail"></span></div><div id="menuItems"></div></div></div></header>
 
   <aside class="side">
     <div class="calnav"><button id="prev" aria-label="Mes anterior">‹</button><span id="calTitle"></span><button id="next" aria-label="Mes siguiente">›</button></div>
     <div class="grid" id="cal"></div>
-    <h3>Mis categorías</h3>
+    <h3>🎒 Mis categorías</h3>
     <div class="cats" id="cats"></div>
     <button class="btn" id="addCat"><i>+</i>Añadir categoría</button>
+    <div class="xp" aria-live="polite"><div>⚔️ Nivel <b id="lvl">1</b> · <span id="xpTxt"></span></div><div class="bar"><div class="fill" id="xpFill"></div></div></div>
+    <div class="mascot">
+      <svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Foxy, la mascota zorro">
+        <ellipse cx="32" cy="60" rx="19" ry="3" fill="#000" opacity=".25"/>
+        <path d="M44 57c11 0 17-9 14-21-3 7-8 10-14 11z" fill="#ff9a3c"/>
+        <path d="M58 36c0 5-2 9-6 12 6-1 10-6 10-11z" fill="#fff4e6"/>
+        <path d="M17 59c0-10 6-16 15-16s15 6 15 16z" fill="#ff9a3c"/>
+        <path d="M26 59c0-6 3-10 6-10s6 4 6 10z" fill="#fff4e6"/>
+        <path d="M11 29L8 6l16 8z" fill="#ff9a3c"/><path d="M53 29L56 6 40 14z" fill="#ff9a3c"/>
+        <path d="M13 22l-2-10 8 4z" fill="#1c2250"/><path d="M51 22l2-10-8 4z" fill="#1c2250"/>
+        <path d="M10 32c0-12 9-18 22-18s22 6 22 18c0 9-8 15-22 15S10 41 10 32z" fill="#ff9a3c"/>
+        <path d="M11 35c6 4 12 5 21 5s15-1 21-5c-2 9-10 12-21 12S13 44 11 35z" fill="#fff4e6"/>
+        <ellipse cx="24" cy="30" rx="3" ry="3.6" fill="#1c2250"/><ellipse cx="40" cy="30" rx="3" ry="3.6" fill="#1c2250"/>
+        <circle cx="25" cy="28.8" r="1.2" fill="#fff"/><circle cx="41" cy="28.8" r="1.2" fill="#fff"/>
+        <ellipse cx="16" cy="38" rx="3" ry="2" fill="#ff7a8a" opacity=".6"/><ellipse cx="48" cy="38" rx="3" ry="2" fill="#ff7a8a" opacity=".6"/>
+        <ellipse cx="32" cy="37.5" rx="3" ry="2.2" fill="#1c2250"/>
+        <path d="M29 41.5q3 2.6 6 0" stroke="#1c2250" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="bubble" id="bubble"></div>
+    </div>
   </aside>
 
   <main class="main">
-    <h2>Mis tareas del día</h2>
+    <h2>⭐ Mis tareas del día</h2>
     <p class="sub" id="selLabel"></p>
     <ul class="tasks" id="tasks"></ul>
-    <button class="btn" id="addTask"><i>+</i>Agregar nuevo evento</button>
+    <button class="btn" id="addTask"><i>+</i>Agregar nuevo evento ✨</button>
   </main>
 
   <section class="view">
-    <h3>Vista del día</h3>
+    <h3>🗺️ Vista del día</h3>
     <ol class="tl" id="tl"></ol>
   </section>
 </div>
@@ -139,6 +181,7 @@ dialog.wide{width:min(520px,94vw);max-height:90vh;overflow:auto}
   <h2>Nueva categoría</h2>
   <label>Nombre<input id="cName" required maxlength="24"></label>
   <label>Color<input id="cColor" type="color" value="#a78bfa"></label>
+  <label>Emoji<select id="cEmoji"><option value="🏷️">🏷️ General</option><option value="📚">📚 Estudio</option><option value="🎮">🎮 Juegos</option><option value="🏃">🏃 Deporte</option><option value="🍳">🍳 Cocina</option><option value="🎵">🎵 Música</option><option value="🛒">🛒 Compras</option><option value="💡">💡 Ideas</option><option value="🏥">🏥 Salud</option><option value="✈️">✈️ Viajes</option><option value="🐾">🐾 Mascotas</option><option value="🎨">🎨 Arte</option><option value="🌱">🌱 Plantas</option><option value="⚔️">⚔️ Misiones</option></select></label>
   <p class="err-msg" id="cErr" role="alert"></p>
   <div class="acts"><button type="button" class="ghost" id="cCat">Cancelar</button><button class="btn">Guardar</button></div>
 </form></dialog>
@@ -161,14 +204,14 @@ dialog.wide{width:min(520px,94vw);max-height:90vh;overflow:auto}
 
 <dialog id="dSet" class="wide"><form method="dialog" id="fSet" novalidate>
   <h2>Configuración</h2>
-  <div class="sec"><h3>Cambiar datos personales</h3><p class="sm" id="setHint"></p>
+  <div class="sec"><h3>Cambiar datos personales</h3><p class="sm" id="setHint"></p><button type="button" class="btn" id="sLogin" hidden>Iniciar sesión</button><div id="dataFields" style="display:flex;flex-direction:column;gap:10px">
     <label>Nombre<input id="sName" maxlength="40"></label>
     <label>Correo<input id="sMail" type="email"></label>
     <p class="err-msg" id="sErr" role="alert"></p>
-    <div class="acts"><button type="button" class="btn" id="sSave">Guardar datos</button></div></div>
+    <div class="acts"><button type="button" class="btn" id="sSave">Guardar datos</button></div></div></div>
   <div class="sec"><h3>Modo claro/oscuro</h3><div class="seg" id="segTheme"><button type="button" data-v="system">Automático</button><button type="button" data-v="light">Claro</button><button type="button" data-v="dark">Oscuro</button></div></div>
   <div class="sec"><h3>Tamaño de letra</h3><div class="seg" id="segFs"><button type="button" data-v="sm">Pequeño</button><button type="button" data-v="md">Normal</button><button type="button" data-v="lg">Grande</button></div></div>
-  <div class="sec"><h3>Cambiar foto de perfil</h3><input id="sPhoto" type="file" accept="image/*"><div class="acts" style="justify-content:flex-start"><button type="button" class="ghost" id="sPhotoDel">Quitar foto</button></div></div>
+  <div class="sec" id="secFoto"><h3>Cambiar foto de perfil</h3><input id="sPhoto" type="file" accept="image/*"><div class="acts" style="justify-content:flex-start"><button type="button" class="ghost" id="sPhotoDel">Quitar foto</button></div></div>
   <div class="acts"><button type="button" class="btn" id="sClose">Listo</button></div>
 </form></dialog>
 
@@ -213,6 +256,7 @@ let saveWarned=false;
 const save=()=>{try{localStorage.setItem(UKEY,JSON.stringify(S))}catch(e){if(!saveWarned){saveWarned=true;toast('No se pudieron guardar los cambios en este navegador.','err')}}};
 
 let sel=todayK, view=new Date(today.getFullYear(),today.getMonth(),1), filter=null, editing=null;
+const emo=c=>c.emoji||({ev:'🎉',re:'🤝',tr:'💼'})[c.id]||'🏷️';
 const cat=id=>S.cats.find(c=>c.id===id)||{id:'',name:'Sin categoría',color:'#a9b0dd'};
 const dayTasks=k=>S.tasks.filter(t=>t.date===k&&(!filter||t.cat===filter)).sort((a,b)=>a.time.localeCompare(b.time));
 
@@ -239,7 +283,7 @@ function renderCats(){
     const b=document.createElement('button');b.className='cat';b.style.setProperty('--c',x.color);
     b.setAttribute('aria-pressed',filter===x.id);
     b.innerHTML='<span class="dot"></span><b></b><small>'+n+'</small>';
-    b.querySelector('b').textContent=x.name;
+    b.querySelector('b').textContent=emo(x)+' '+x.name;
     b.title='Filtrar por '+x.name;
     b.onclick=()=>{filter=filter===x.id?null:x.id;renderAll()};
     const r=document.createElement('div');r.className='catrow';
@@ -259,9 +303,9 @@ function renderTasks(){
     li.className='task'+(t.done?' done':'');li.style.setProperty('--c',c.color);
     li.innerHTML='<button class="check" aria-label="Marcar como hecha">'+(t.done?'✓':'')+'</button><div><div class="t"></div><div class="row2" style="margin-top:6px"><span class="chip"></span><span class="time"></span></div></div><span></span><button class="ic" aria-label="Editar">✎</button>';
     li.querySelector('.t').textContent=t.title;
-    li.querySelector('.chip').textContent=c.name;
+    li.querySelector('.chip').textContent=emo(c)+' '+c.name;
     li.querySelector('.time').textContent=fmt12(t.time);
-    li.querySelector('.check').onclick=()=>{t.done=!t.done;save();renderAll();if(t.done)toast('¡Tarea completada!')};
+    li.querySelector('.check').onclick=e=>{const r=e.currentTarget.getBoundingClientRect(),l0=Math.floor(xpNow()/XP_LVL);t.done=!t.done;save();renderAll();if(t.done){const l1=Math.floor(xpNow()/XP_LVL);burst(r);toast(l1>l0?'🎉 ¡Subiste al nivel '+(l1+1)+'!':'¡Misión cumplida! +'+XP_PER+' XP')}};
     li.querySelector('.ic').onclick=()=>openTask(t);
     ul.append(li);
   });
@@ -273,21 +317,22 @@ function renderTl(){
   list.forEach(t=>{
     const li=document.createElement('li');li.style.setProperty('--c',cat(t.cat).color);
     li.innerHTML='<div class="h"></div><div class="box'+(t.done?' done':'')+'"></div>';
-    li.querySelector('.h').textContent=fmt12(t.time);
+    li.querySelector('.h').textContent=fmt12(t.time)+' '+emo(cat(t.cat));
     li.querySelector('.box').textContent=t.title;
     o.append(li);
   });
 }
 function renderAll(){
-  $('#hoy').textContent=today.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  renderCal();renderCats();renderTasks();renderTl();save();
+  $('#hoy').textContent='📅 '+today.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderCal();renderCats();renderTasks();renderTl();renderGame();save();
 }
 
+function defTime(){const n=new Date();if($('#fFecha').value!==todayK)return '09:00';return n.getHours()>=23?'23:59':pad(n.getHours()+1)+':00'}
 function fillCats(v){$('#fCat').innerHTML='';if(!S.cats.length){$('#fCat').innerHTML='<option value="">Sin categoría</option>';return}S.cats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;$('#fCat').append(o)});if(v)$('#fCat').value=v}
 function openTask(t){
   editing=t||null;fillCats(t?t.cat:(filter||(S.cats[0]&&S.cats[0].id)));
   $('#dTitle').textContent=t?'Editar evento':'Nuevo evento';
-  $('#fTitulo').value=t?t.title:'';$('#fFecha').value=t?t.date:(sel<todayK?todayK:sel);$('#fHora').value=t?t.time:'09:00';
+  $('#fTitulo').value=t?t.title:'';$('#fFecha').value=t?t.date:(sel<todayK?todayK:sel);$('#fHora').value=t?t.time:defTime();
   $('#fFecha').min=(t&&t.date<todayK)?'':todayK;$('#fErr').textContent='';
   $('#delTask').hidden=!t;$('#dTask').showModal();$('#fTitulo').focus();
 }
@@ -311,7 +356,7 @@ $('#fCatForm').addEventListener('submit',e=>{e.preventDefault();
   const n=$('#cName').value.trim(),err=m=>{$('#cErr').textContent=m};
   if(!n)return err('Escribe un nombre para la categoría.');
   if(S.cats.some(c=>c.name.toLowerCase()===n.toLowerCase()))return err('Ya existe una categoría con ese nombre.');
-  S.cats.push({id:'c'+Date.now(),name:n,color:$('#cColor').value});$('#dCat').close();renderAll();toast('Categoría “'+n+'” creada.');
+  S.cats.push({id:'c'+Date.now(),name:n,color:$('#cColor').value,emoji:$('#cEmoji').value});$('#dCat').close();renderAll();toast('Categoría “'+n+'” creada.');
 });
 let delCat=null;
 function askDelCat(c){
@@ -415,12 +460,14 @@ $('#accAdd').onclick=()=>{$('#dAcc').close();openAuth('login')};
 $('#fAcc').addEventListener('submit',e=>e.preventDefault());
 function openSet(){
   const u=user();
-  ['#sName','#sMail','#sSave','#sPhoto','#sPhotoDel'].forEach(s=>{$(s).disabled=!u});
+  $('#dataFields').hidden=!u;$('#secFoto').hidden=!u;$('#sLogin').hidden=!!u;
   $('#sName').value=u?u.name:'';$('#sMail').value=u?u.email:'';$('#sErr').textContent='';$('#sPhoto').value='';
   $('#setHint').textContent=u?'':'Inicia sesión para editar tus datos y tu foto. El modo y el tamaño de letra sí puedes cambiarlos ahora.';
   applyPrefs();$('#dSet').showModal();
 }
 $('#sClose').onclick=()=>$('#dSet').close();
+$('#sLogin').onclick=()=>{$('#dSet').close();openAuth('login')};
+$('#fFecha').addEventListener('change',()=>{if($('#fFecha').value===todayK&&new Date(todayK+'T'+$('#fHora').value)<new Date())$('#fHora').value=defTime()});
 $('#fSet').addEventListener('submit',e=>e.preventDefault());
 $('#sSave').onclick=()=>{
   const u=user(),name=$('#sName').value.trim(),mail=$('#sMail').value.trim().toLowerCase(),err=m=>{$('#sErr').textContent=m};
@@ -446,6 +493,28 @@ $('#sPhoto').onchange=e=>{
 };
 $('#sPhotoDel').onclick=()=>{const u=user();if(!u.photo)return toast('No tienes una foto para quitar.','err');u.photo='';saveAcc();renderMenu();$('#sPhoto').value='';toast('Foto eliminada.')};
 applyPrefs();renderMenu();
+const XP_PER=10,XP_LVL=50;
+const xpNow=()=>S.tasks.filter(t=>t.done).length*XP_PER;
+function renderGame(){
+  const xp=xpNow(),lv=Math.floor(xp/XP_LVL)+1,cur=xp%XP_LVL;
+  $('#lvl').textContent=lv;$('#xpTxt').textContent=cur+' / '+XP_LVL+' XP';$('#xpFill').style.width=(cur/XP_LVL*100)+'%';
+  const day=S.tasks.filter(t=>t.date===sel),dn=day.filter(t=>t.done).length,cuando=sel===todayK?'hoy':'ese día';
+  let m;
+  if(!day.length)m='Día libre… ¿agregamos una misión? 🗡️';
+  else if(dn===day.length)m='¡Todas completadas! Eres imparable 🏆';
+  else if(dn===0)m='Tienes '+day.length+(day.length===1?' misión ':' misiones ')+cuando+'. ¡Tú puedes! 💪';
+  else m='Vas '+dn+' de '+day.length+'. ¡Sigue así! ⭐';
+  $('#bubble').textContent=m;
+}
+function burst(r){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  ['✨','⭐','🎉','💫','✨','🌟'].forEach((c,i)=>{
+    const s=document.createElement('span');s.className='pop';s.textContent=c;
+    s.style.left=(r.left+r.width/2)+'px';s.style.top=(r.top+r.height/2)+'px';document.body.append(s);
+    const a=(i/6)*Math.PI*2,d=40+Math.random()*30,dx=Math.cos(a)*d,dy=Math.sin(a)*d;
+    s.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:1},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(1.2)',opacity:0}],{duration:700,easing:'ease-out'}).onfinish=()=>s.remove();
+  });
+}
 $('#prev').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()};
 $('#next').onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()};
 renderAll();
